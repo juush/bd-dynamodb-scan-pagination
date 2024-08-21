@@ -1,9 +1,14 @@
 package com.amazon.ata.dynamodbscanandserialization.paginatedScan;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides access to the FoodItems table.
@@ -28,6 +33,15 @@ public class FoodItemDao {
      */
     public List<FoodItem> scanFoodItemsWithLimit(final FoodItem exclusiveStartKey, final int limit) {
         //TODO: replace the below code
-        return Collections.emptyList();
+        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+                .withLimit(limit);
+        if (null != exclusiveStartKey) {
+            Map<String, AttributeValue> startKeyMap = new HashMap<>();
+            startKeyMap.put("id", new AttributeValue().withS(exclusiveStartKey.getId()));
+            scanExpression.setExclusiveStartKey(startKeyMap);
+        }
+//        mapper.scanPage(FoodItem.class, scanExpression);
+        return mapper.scanPage(FoodItem.class, scanExpression).getResults();
     }
 }
+
